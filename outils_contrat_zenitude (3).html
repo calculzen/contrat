@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outils Contrat — Zenitude Groupe</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@500&display=swap');
+
+  :root {
+    --bleu:        #1F4E79;
+    --bleu-mid:    #2E75B6;
+    --bleu-light:  #EBF2FA;
+    --bleu-border: #BDD7EE;
+    --vert:        #375623;
+    --vert-bg:     #E2EFDA;
+    --vert-border: #70AD47;
+    --orange:      #7F5000;
+    --orange-bg:   #FFF2CC;
+    --orange-border:#F0A500;
+    --red:         #7F3010;
+    --red-bg:      #FCE4D6;
+    --red-border:  #C55A11;
+    --bg:          #F0F4F8;
+    --card:        #FFFFFF;
+    --text:        #1A2332;
+    --muted:       #6B7C93;
+    --border:      #D8E3EE;
+    --radius:      14px;
+    --shadow:      0 2px 20px rgba(31,78,121,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  /* ── HEADER PRINCIPAL ── */
+  .main-header {
+    max-width: 600px; margin: 0 auto 1.5rem;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .main-header-icon {
+    width: 48px; height: 48px; background: var(--bleu);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .main-header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .main-header h1 { font-size: 18px; font-weight: 700; color: var(--bleu); }
+  .main-header p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── NAVIGATION PRINCIPALE ── */
+  .main-nav {
+    max-width: 600px; margin: 0 auto 1.5rem;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 6px; background: var(--card); border-radius: var(--radius);
+    padding: 6px; box-shadow: var(--shadow);
+  }
+  .main-nav-btn {
+    padding: 9px 4px; border: none; border-radius: 10px;
+    background: transparent; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .18s; text-align: center; line-height: 1.35;
+  }
+  .main-nav-btn:hover  { background: var(--bleu-light); color: var(--bleu); }
+  .main-nav-btn.active { background: var(--bleu); color: #fff; }
+
+  /* ── CARDS ── */
+  .card {
+    max-width: 600px; margin: 0 auto;
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 2rem; display: none;
+  }
+  .card.active { display: block; }
+
+  /* ── TITRES ── */
+  .card-title    { font-size: 15px; font-weight: 700; color: var(--bleu); margin-bottom: 4px; }
+  .card-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+  /* ── FIELDS ── */
+  .field { margin-bottom: 1.2rem; }
+  .field-label {
+    display: block; font-size: 11px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px;
+  }
+  select, input[type="date"], input[type="number"] {
+    width: 100%; padding: 11px 14px; font-size: 14px;
+    font-family: 'DM Sans', sans-serif; border: 1.5px solid var(--border);
+    border-radius: 10px; background: #FAFCFF; color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+    appearance: none; -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%231F4E79' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 36px; cursor: pointer;
+  }
+  select:focus, input:focus {
+    border-color: var(--bleu-mid); box-shadow: 0 0 0 3px rgba(46,117,182,0.12); background: #fff;
+  }
+  .input-row { display: flex; align-items: center; gap: 10px; }
+  .input-row input { flex: 1; }
+  .unit { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* ── TABS INTERNES ── */
+  .tabs {
+    max-width: 600px; margin: 0 auto 1.5rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; background: var(--bleu-light); border-radius: 12px; padding: 5px;
+  }
+  .tab-btn {
+    padding: 9px 8px; border: none; border-radius: 9px;
+    background: transparent; color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .18s; text-align: center; line-height: 1.3;
+  }
+  .tab-btn:hover  { background: #fff; color: var(--bleu); }
+  .tab-btn.active { background: var(--bleu); color: #fff; }
+
+  .type-tabs { display: flex; gap: 8px; margin-bottom: 1.2rem; }
+  .type-tab {
+    flex: 1; padding: 10px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: #fff; color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: all .15s;
+  }
+  .type-tab:hover  { border-color: var(--bleu); color: var(--bleu); }
+  .type-tab.active { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+
+  /* ── RÉSULTATS ── */
+  .result-block, .result-box {
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-top: 1.25rem; display: none; animation: fadeIn .2s ease;
+    background: var(--bleu-light); border: 1.5px solid var(--bleu-border);
+  }
+  .result-block.warn,    .result-box.warn    { background: var(--orange-bg); border-color: var(--orange-border); }
+  .result-block.success, .result-box.success { background: var(--vert-bg);   border-color: var(--vert-border); }
+  .result-block.info,    .result-box.info    { background: var(--bleu-light); border-color: var(--bleu-border); }
+  .result-block.danger,  .result-box.danger  { background: var(--red-bg);     border-color: var(--red-border); }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+  .result-section { margin-bottom: 1rem; }
+  .result-section:last-child { margin-bottom: 0; }
+  .result-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--bleu); margin-bottom: 4px; }
+  .warn    .result-section-title { color: var(--orange); }
+  .success .result-section-title { color: var(--vert); }
+
+  .result-value {
+    font-family: 'DM Mono', monospace; font-size: 22px;
+    font-weight: 500; color: var(--bleu); line-height: 1.2;
+  }
+  .warn    .result-value { color: var(--orange); }
+  .success .result-value { color: var(--vert); }
+
+  .result-sub     { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .result-divider { height: 1px; background: rgba(31,78,121,0.12); margin: 12px 0; }
+  .result-detail  { font-size: 12px; color: #444; line-height: 1.7; white-space: pre-line; }
+  .result-ref     { margin-top: 10px; font-size: 10px; color: var(--muted); font-style: italic; }
+
+  /* Grille salaire */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px; }
+  .result-grid-item .rg-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--bleu); margin-bottom: 4px; }
+  .result-grid-item .rg-value { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--bleu); }
+
+  /* Résultats carence */
+  .result-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; }
+  .result-main  { font-size: 22px; font-weight: 700; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .info    .result-title, .info    .result-main { color: var(--bleu); }
+  .success .result-title, .success .result-main { color: var(--vert); }
+  .warn    .result-title, .warn    .result-main { color: var(--orange); }
+  .danger  .result-title, .danger  .result-main { color: var(--red); }
+
+  /* Boutons raccourcis salaire */
+  .shortcuts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .shortcut {
+    font-size: 12px; padding: 4px 12px; border-radius: 99px;
+    border: 1.5px solid var(--border); background: #fff; color: #444;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: background .12s, border-color .12s, color .12s;
+  }
+  .shortcut:hover  { background: var(--bleu-light); border-color: var(--bleu); color: var(--bleu); }
+  .shortcut.active { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+
+  /* Masquer éléments internes non nécessaires */
+  .logo-bar, .header, .disclaimer { display: none; }
+
+  .alert {
+    background: var(--orange-bg); border: 1px solid var(--orange-border);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px;
+    color: var(--orange); line-height: 1.6; margin-top: 10px; display: none;
+  }
+  .empty-msg { text-align: center; padding: 1.5rem 0 .5rem; color: #C0C8D4; font-size: 13px; font-style: italic; }
+  .sep { height: 1px; background: var(--bleu-light); margin: 1.5rem 0; }
+
+  /* ── SOUS-PANELS PRÉVENANCE ── */
+  .prev-panel { display: none; }
+  .prev-panel.active { display: block; }
+  /* ── BOUTON RESET ── */
+  .btn-reset {
+    display: block; width: 100%; margin-top: 1rem;
+    padding: 10px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: #fff; color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
+    transition: all .15s;
+  }
+  .btn-reset:hover { border-color: var(--bleu); color: var(--bleu); background: var(--bleu-light); }
+
+  /* ── MESSAGE ERREUR DATE ── */
+  .date-error {
+    font-size: 11px; color: #C55A11; font-weight: 600;
+    margin-top: 5px; display: none;
+  }
+
+  /* ── PAGE DE GARDE ── */
+  .splash {
+    max-width: 600px; margin: 0 auto;
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 2.5rem 2rem; text-align: center;
+  }
+  .splash-icon {
+    width: 64px; height: 64px; background: var(--bleu);
+    border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; margin: 0 auto 1.5rem;
+  }
+  .splash-icon svg { width: 32px; height: 32px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .splash h2 { font-size: 20px; font-weight: 700; color: var(--bleu); margin-bottom: .5rem; }
+  .splash .splash-sub { font-size: 12px; color: var(--muted); margin-bottom: 2rem; }
+  .splash-sections { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; text-align: left; }
+  .splash-section {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--bleu-light); border-radius: 10px; padding: 12px 14px;
+  }
+  .splash-section-icon {
+    width: 32px; height: 32px; background: var(--bleu); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .splash-section-icon svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .splash-section-title { font-size: 13px; font-weight: 700; color: var(--bleu); margin-bottom: 2px; }
+  .splash-section-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .splash-warning {
+    background: var(--orange-bg); border: 1px solid var(--orange-border);
+    border-radius: 10px; padding: 12px 14px; font-size: 11px;
+    color: var(--orange); line-height: 1.6; margin-bottom: 1.5rem; text-align: left;
+  }
+  .splash-warning strong { font-weight: 700; }
+  .btn-start {
+    width: 100%; padding: 14px; background: var(--bleu); color: #fff;
+    border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s;
+  }
+  .btn-start:hover { background: var(--bleu-mid); }
+
+  .hidden { display: none !important; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ PAGE DE GARDE ══════════ -->
+<div id="splash" class="splash">
+  <div class="splash-icon">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+  </div>
+  <h2>Outils Contrat — Zenitude Groupe</h2>
+  <p class="splash-sub">Calculettes opérationnelles à usage des directeurs de site · CCN HCR / Code du travail</p>
+
+  <div class="splash-sections">
+    <div class="splash-section">
+      <div class="splash-section-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 5v5l4 2"/></svg>
+      </div>
+      <div>
+        <div class="splash-section-title">Salaire mensuel brut</div>
+        <div class="splash-section-desc">Calcule les heures mensuelles et le salaire brut à partir du nombre d'heures hebdomadaires et du taux horaire.</div>
+      </div>
+    </div>
+    <div class="splash-section">
+      <div class="splash-section-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <div>
+        <div class="splash-section-title">Période d'essai & délai de prévenance</div>
+        <div class="splash-section-desc">Calcule la durée de la période d'essai, sa date de fin, et le délai à respecter en cas de rupture à l'initiative de l'employeur.</div>
+      </div>
+    </div>
+    <div class="splash-section">
+      <div class="splash-section-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M9 12h6M9 16h4"/></svg>
+      </div>
+      <div>
+        <div class="splash-section-title">Délai de carence CDD</div>
+        <div class="splash-section-desc">Détermine si un délai de carence est obligatoire entre deux CDD successifs et calcule sa durée ainsi que la date de reprise possible.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="splash-warning">
+    <strong>⚠ Important</strong><br>
+    Ces outils fournissent des résultats <strong>indicatifs</strong> basés sur le Code du travail et la CCN HCR (IDCC 1979). Tout contrat doit être <strong>validé par le service RH siège</strong> avant signature. En cas de doute, contactez le service RH.
+  </div>
+
+  <button class="btn-start" onclick="startApp()">Accéder aux calculettes →</button>
+</div>
+
+<!-- ══════════ APPLICATION ══════════ -->
+<div id="app" class="hidden">
+
+<div class="main-header">
+  <div class="main-header-icon">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+  </div>
+  <div>
+    <h1>Outils RH — Zenitude Groupe</h1>
+    <p>Calculettes opérationnelles · Directeurs de site · CCN HCR / Code du travail</p>
+  </div>
+</div>
+
+<nav class="main-nav">
+  <button class="main-nav-btn active" onclick="showMain('salaire', this)">Salaire<br>mensuel</button>
+  <button class="main-nav-btn"        onclick="showMain('prevenance', this)">Période d'essai<br>&amp; prévenance</button>
+  <button class="main-nav-btn"        onclick="showMain('carence', this)">Délai de<br>carence CDD</button>
+</nav>
+
+<div class="card active" id="tab-salaire">
+
+  <div class="logo-bar">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v16h10V4H7zm2 3h6v2H9V7zm0 4h6v2H9v-2zm0 4h4v2H9v-2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Zenitude Groupe</div>
+      <div class="logo-sub">Calculette salaire mensuel</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="heures">Heures hebdomadaires</label>
+    <div class="input-row">
+      <input type="number" id="heures" min="1" max="48" step="0.5" placeholder="Ex : 35" oninput="calcSalaire()">
+      <span class="unit">h/sem</span>
+    </div>
+    <div class="shortcuts">
+      <button class="shortcut" onclick="setH(24)">24 h</button>
+      <button class="shortcut" onclick="setH(28)">28 h</button>
+      <button class="shortcut" onclick="setH(30)">30 h</button>
+      <button class="shortcut" onclick="setH(35)">35 h</button>
+      <button class="shortcut" onclick="setH(39)">39 h</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="taux">Taux horaire brut</label>
+    <div class="input-row">
+      <input type="number" id="taux" min="0.01" step="0.01" placeholder="Ex : 12,50" oninput="calcSalaire()">
+      <span class="unit">€ / h</span>
+    </div>
+  </div>
+
+  <div id="sal-result-box" class="result-box">
+    <div class="result-grid">
+      <div class="result-item">
+        <p class="rlabel">Heures mensuelles</p>
+        <p class="rvalue" id="res-heures">—</p>
+      </div>
+      <div class="result-item">
+        <p class="rlabel">Salaire brut mensuel</p>
+        <p class="rvalue" id="res-salaire">—</p>
+      </div>
+    </div>
+    <div class="result-footer">
+      <span>Base 52/12</span>
+    </div>
+  </div>
+
+  <div id="sal-empty-msg" class="empty-msg">
+    Renseigner les deux valeurs pour obtenir le résultat
+  </div>
+  <button class="btn-reset" onclick="resetSalaire()">↺ Réinitialiser</button>
+
+
+
+</div>
+
+<div class="card" id="tab-prevenance">
+<!-- HEADER -->
+<div class="header">
+  <div class="header-icon">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+  </div>
+  <div class="header-text">
+    <h1>Délai de prévenance</h1>
+    <p>Zenitude Groupe · Rupture période d'essai · CCN HCR / Code du travail</p>
+  </div>
+</div>
+
+
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- ONGLET 1 : PÉRIODE D'ESSAI + PRÉVENANCE               -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="prev-panel active" id="prev-pe">
+  <div class="card-title">Période d'essai & délai de prévenance</div>
+  <div class="card-subtitle">Calcule la fin de PE, la date limite de notification et le délai applicable.</div>
+
+  <!-- Type contrat -->
+  <div class="field">
+    <label class="field-label">Type de contrat</label>
+    <div class="type-tabs">
+      <button class="type-tab" id="pe-tab-cdi" onclick="setPEType('CDI')">CDI</button>
+      <button class="type-tab" id="pe-tab-cdd" onclick="setPEType('CDD')">CDD</button>
+    </div>
+  </div>
+
+  <!-- CDI : catégorie -->
+  <div class="hidden" id="pe-bloc-categorie">
+    <div class="field">
+      <label class="field-label" for="pe-categorie">Catégorie du salarié</label>
+      <select id="pe-categorie" onchange="calcPE()">
+        <option value="">-- Sélectionner --</option>
+        <option value="employe">Employé</option>
+        <option value="maitrise">Agent de maîtrise</option>
+        <option value="cadre">Cadre</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label" for="pe-renouvellement">Renouvellement de PE prévu au contrat ?</label>
+      <select id="pe-renouvellement" onchange="calcPE()">
+        <option value="non">Non</option>
+        <option value="oui">Oui</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Date embauche + date terme CDD (commun) -->
+  <div class="hidden" id="pe-bloc-dates">
+    <div class="field">
+      <label class="field-label" for="pe-embauche">Date d'embauche</label>
+      <input type="date" id="pe-embauche" onchange="calcPE()">
+    </div>
+
+    <!-- CDD : date de terme -->
+    <div class="hidden" id="pe-bloc-cdd-duree">
+      <div class="field">
+        <label class="field-label" for="pe-cdd-fin">Date de terme du contrat</label>
+        <input type="date" id="pe-cdd-fin" onchange="calcPE()">
+      <div class="date-error" id="err-pe-dates">⚠ La date de terme doit être postérieure à la date d'embauche.</div>
+      </div>
+      <!-- CDD : déduction CDD précédent sur le même poste -->
+      <div class="field">
+        <label class="field-label" for="pe-cdd-cdd-prec">CDD précédents sur le même poste dans l'entreprise ?</label>
+        <select id="pe-cdd-cdd-prec" onchange="toggleCDDPrecCDD()">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="hidden" id="pe-bloc-cdd-cdd-prec">
+        <div class="field">
+          <label class="field-label" for="pe-cdd-cdd-prec-debut">Date de début du CDD précédent</label>
+          <input type="date" id="pe-cdd-cdd-prec-debut" onchange="calcPE()">
+        </div>
+        <div class="field">
+          <label class="field-label" for="pe-cdd-cdd-prec-fin">Date de fin du CDD précédent</label>
+          <input type="date" id="pe-cdd-cdd-prec-fin" onchange="calcPE()">
+          <div class="date-error" id="err-cdd-prec-dates">⚠ Dates incohérentes.</div>
+        </div>
+        <div style="background:var(--bleu-light);border:1px solid var(--bleu-border);border-radius:8px;padding:10px 14px;font-size:11px;color:#444;line-height:1.6;margin-top:4px;margin-bottom:12px;">
+          ℹ Règle jurisprudentielle (Cass. Soc. 13/06/2012, n°10-28286) : si le salarié a déjà occupé le même poste dans l'entreprise en CDD, la durée du contrat précédent se déduit de la nouvelle période d'essai.
+        </div>
+      </div>
+    </div>
+
+    <!-- CDD précédents (CDI seulement) -->
+    <div class="hidden" id="pe-bloc-cdd-prec">
+      <div class="field">
+        <label class="field-label" for="pe-cdd-prec">CDD précédents sur le même poste ?</label>
+        <select id="pe-cdd-prec" onchange="toggleCDDPrec()">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="hidden" id="pe-bloc-jours-cdd">
+        <div class="field">
+          <label class="field-label" for="pe-cdd-prec-debut">Date de début du CDD précédent</label>
+          <input type="date" id="pe-cdd-prec-debut" onchange="calcPE()">
+        </div>
+        <div class="field">
+          <label class="field-label" for="pe-cdd-prec-fin">Date de fin du CDD précédent</label>
+          <input type="date" id="pe-cdd-prec-fin" onchange="calcPE()">
+          <div class="date-error" id="err-prec-dates">⚠ Dates incohérentes.</div>
+        </div>
+      </div>
+      <div id="warn-carence-pe" class="hidden" style="background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--orange);line-height:1.6;margin-top:8px;">
+        ⚠ Si le CDD précédent était un contrat d’accroissement d’activité, vérifiez que le délai de carence a bien été respecté avant cette embauche. Utilisez l’onglet “Délai de carence CDD” pour le calculer.
+      </div>
+    </div>
+
+    <!-- Suspension -->
+    <div class="field">
+      <label class="field-label" for="pe-suspension">Jours de suspension du contrat (maladie, CP…)</label>
+      <div class="input-row">
+        <input type="number" id="pe-suspension" min="0" placeholder="0 si aucun" oninput="calcPE()">
+        <span class="unit">jours</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Résultat PE -->
+  <div class="result-block" id="r-pe">
+
+    <div class="result-section" id="rpe-duree-section">
+      <div class="result-section-title">Durée de la période d'essai</div>
+      <div class="result-value" id="rpe-duree-val"></div>
+      <div class="result-sub"   id="rpe-duree-sub"></div>
+    </div>
+
+    <div class="result-divider"></div>
+
+    <div class="result-section">
+      <div class="result-section-title">Fin de période d'essai</div>
+      <div class="result-value" id="rpe-fin-val"></div>
+      <div class="result-sub"   id="rpe-fin-sub"></div>
+    </div>
+
+    <div id="rpe-renouvellement-section" class="hidden">
+      <div class="result-divider"></div>
+      <div class="result-section">
+        <div class="result-section-title">Fin de PE avec renouvellement</div>
+        <div class="result-value" id="rpe-renouv-val"></div>
+        <div class="result-sub"   id="rpe-renouv-sub"></div>
+      </div>
+    </div>
+
+    <div class="result-divider"></div>
+
+    <div class="result-section">
+      <div class="result-section-title">Délai de prévenance applicable</div>
+      <div class="result-value" id="rpe-prev-val"></div>
+    </div>
+
+    <div class="result-section">
+      <div class="result-section-title">Date limite de notification à l'employeur</div>
+      <div class="result-value" id="rpe-notif-val"></div>
+      <div class="result-sub"   id="rpe-notif-sub"></div>
+    </div>
+
+    <div id="rpe-renouv-notif-section" class="hidden">
+      <div class="result-divider"></div>
+      <div class="result-section">
+        <div class="result-section-title">Date limite de notification (PE renouvelée)</div>
+        <div class="result-value" id="rpe-renouv-notif-val"></div>
+        <div class="result-sub"   id="rpe-renouv-notif-sub"></div>
+      </div>
+    </div>
+
+    <div class="result-divider"></div>
+    <div class="result-detail" id="rpe-detail"></div>
+    <div class="result-ref"    id="rpe-ref"></div>
+  </div>
+
+  <div class="alert" id="alert-pe"></div>
+  <div class="empty-msg" id="e-pe">Sélectionner le type de contrat pour commencer</div>
+  <button class="btn-reset" onclick="resetPE()">↺ Réinitialiser</button>
+</div>
+
+
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  Outil indicatif à usage interne · Code du travail (L.1221-19, L.1221-25, L.1242-10) · CCN HCR (IDCC 1979)<br>
+  Résultats à valider avec le service RH siège · Ne se substitue pas à un avis juridique
+</div>
+</div>
+
+<div class="card" id="tab-carence">
+
+  <div class="card-title">Délai de carence CDD</div>
+  <div class="card-subtitle">Détermine si un délai de carence est nécessaire entre deux CDD et sa durée éventuelle.</div>
+
+  <!-- Même poste -->
+  <div class="field">
+    <label class="field-label" for="ca-meme-poste">Le nouveau CDD porte-t-il sur le même poste que le précédent ?</label>
+    <select id="ca-meme-poste" onchange="calculeCarence()">
+      <option value="">-- Sélectionner --</option>
+      <option value="oui">Oui — même poste de travail</option>
+      <option value="non">Non — poste différent</option>
+    </select>
+  </div>
+
+  <!-- Motif CDD précédent (si même poste) -->
+  <div class="field" id="bloc-motif-prec" style="display:none;">
+    <label class="field-label" for="motif-prec">Motif du CDD précédent</label>
+    <select id="motif-prec" onchange="calculeCarence()">
+      <option value="">-- Sélectionner --</option>
+      <option value="remplacement">Remplacement d'un salarié absent</option>
+      <option value="accroissement">Accroissement temporaire d'activité</option>
+      <option value="saisonnier">Contrat saisonnier</option>
+    </select>
+  </div>
+
+  <!-- Motif nouveau CDD (si même poste) -->
+  <div class="field" id="bloc-motif-nouveau" style="display:none;">
+    <label class="field-label" for="motif">Motif du nouveau CDD</label>
+    <select id="motif" onchange="calculeCarence()">
+      <option value="">-- Sélectionner --</option>
+      <option value="remplacement">Remplacement d'un salarié absent</option>
+      <option value="accroissement">Accroissement temporaire d'activité</option>
+      <option value="saisonnier">Contrat saisonnier</option>
+    </select>
+  </div>
+
+  <!-- Renouvellement (si accroissement → accroissement) -->
+  <div class="field" id="bloc-renouvellement" style="display:none;">
+    <label class="field-label" for="renouvellement">Le nouveau CDD est-il un renouvellement du précédent ?</label>
+    <select id="renouvellement" onchange="calculeCarence()">
+      <option value="">-- Sélectionner --</option>
+      <option value="oui">Oui — renouvellement du même contrat</option>
+      <option value="non">Non — nouveau contrat distinct</option>
+    </select>
+  </div>
+
+  <!-- Dates CDD précédent -->
+  <div id="bloc-duree" style="display:none;">
+    <div class="field">
+      <label class="field-label" for="ca-debut">Date de début du CDD précédent</label>
+      <input type="date" id="ca-debut" onchange="calculeCarence()">
+    </div>
+    <div class="field">
+      <label class="field-label" for="ca-fin">Date de fin du CDD précédent</label>
+      <input type="date" id="ca-fin" onchange="calculeCarence()">
+      <div class="date-error" id="err-ca-dates">⚠ La date de fin doit être postérieure à la date de début.</div>
+    </div>
+  </div>
+
+  <!-- Résultat -->
+  <div id="ca-result-box" class="result-box">
+    <div class="result-title" id="ca-res-title"></div>
+    <div class="result-main" id="ca-res-main"></div>
+    <div id="ca-res-date-fin" style="display:none; margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--orange);margin-bottom:4px;">Nouveau contrat possible à partir du</div>
+      <div id="ca-res-date-val" style="font-size:22px;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;line-height:1.3;"></div>
+    </div>
+    <div style="height:1px;background:rgba(0,0,0,0.08);margin:10px 0;" id="ca-res-divider" style="display:none;"></div>
+    <div class="result-detail" id="ca-res-detail"></div>
+    <div class="result-ref" id="ca-res-ref"></div>
+  </div>
+
+  <div id="ca-empty-msg" class="empty-msg">
+    Renseigner les champs pour obtenir le résultat
+  </div>
+  <button class="btn-reset" onclick="resetCarence()">↺ Réinitialiser</button>
+
+  <div class="disclaimer">
+    Outil basé sur le Code du travail (L.1244-3 à L.1244-4-1).<br>
+    Vérifier l'absence de disposition dérogatoire dans la CCN HCR applicable.<br>
+    Ne se substitue pas à un avis juridique.
+  </div>
+
+</div>
+
+</div> <!-- fin #app -->
+
+<div style="max-width:600px;margin:1.25rem auto 0;div style="max-width:600px;margin:1.25rem auto 0;padding:10px 16px;background:rgba(255,255,255,.6);border-radius:10px;font-size:10px;color:var(--muted);line-height:1.6;text-align:center;">
+  Outils indicatifs à usage interne · Code du travail &amp; CCN HCR (IDCC 1979)
+</div>
+
+<script>
+// ── RESET ────────────────────────────────────────────────────────────────────
+function resetSalaire() {
+  document.getElementById('heures').value = '';
+  document.getElementById('taux').value   = '';
+  document.querySelectorAll('.shortcut').forEach(b => b.classList.remove('active'));
+  document.getElementById('sal-result-box').style.display = 'none';
+  document.getElementById('sal-empty-msg').style.display  = 'block';
+}
+
+function resetPE() {
+  peType = null;
+  document.getElementById('pe-tab-cdi').classList.remove('active');
+  document.getElementById('pe-tab-cdd').classList.remove('active');
+  document.getElementById('pe-bloc-categorie').classList.add('hidden');
+  document.getElementById('pe-bloc-cdd-duree').classList.add('hidden');
+  document.getElementById('pe-bloc-dates').classList.add('hidden');
+  document.getElementById('pe-bloc-cdd-prec').classList.add('hidden');
+  document.getElementById('pe-bloc-jours-cdd').classList.add('hidden');
+  var bcp = document.getElementById('pe-bloc-cdd-cdd-prec'); if(bcp) bcp.classList.add('hidden');
+  document.getElementById('warn-carence-pe').classList.add('hidden');
+  document.getElementById('r-pe').style.display = 'none';
+  document.getElementById('alert-pe').style.display = 'none';
+  document.getElementById('e-pe').style.display = 'block';
+  document.getElementById('e-pe').textContent = 'Sélectionner le type de contrat pour commencer';
+  ['pe-categorie','pe-renouvellement','pe-cdd-prec','pe-cdd-cdd-prec'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = el.options[0].value;
+  });
+  ['pe-cdd-fin','pe-embauche','pe-cdd-prec-debut','pe-cdd-prec-fin','pe-suspension','pe-cdd-cdd-prec-debut','pe-cdd-cdd-prec-fin'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+}
+
+function resetCarence() {
+  document.getElementById('ca-meme-poste').value  = '';
+  ['motif-prec','motif','renouvellement'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('ca-debut').value     = '';
+  document.getElementById('ca-fin').value       = '';
+  document.getElementById('bloc-motif-prec').style.display    = 'none';
+  document.getElementById('bloc-motif-nouveau').style.display = 'none';
+  document.getElementById('bloc-duree').style.display         = 'none';
+  document.getElementById('bloc-renouvellement').style.display = 'none';
+  document.getElementById('ca-result-box').style.display     = 'none';
+  document.getElementById('ca-empty-msg').style.display      = 'block';
+  var e = document.getElementById('err-ca-dates');
+  if (e) e.style.display = 'none';
+}
+
+function startApp() {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+}
+
+function showMain(id, btn) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.main-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+
+  function setH(v) {
+    document.getElementById('heures').value = v;
+    document.querySelectorAll('.shortcut').forEach(function(b) {
+      b.classList.toggle('active', parseFloat(b.textContent) === v);
+    });
+    calcSalaire();
+  }
+
+  function calcSalaire() {
+    var h = parseFloat(document.getElementById('heures').value);
+    var t = parseFloat(document.getElementById('taux').value);
+    var box = document.getElementById('sal-result-box');
+    var msg = document.getElementById('sal-empty-msg');
+
+    // Sync boutons raccourcis
+    document.querySelectorAll('.shortcut').forEach(function(b) {
+      b.classList.toggle('active', parseFloat(b.textContent) === h);
+    });
+
+    if (isNaN(h) || isNaN(t) || h <= 0 || t <= 0) {
+      box.style.display = 'none';
+      msg.style.display = 'block';
+      return;
+    }
+
+    var coef   = 52 / 12;
+    var hMois  = h * coef;
+    var salaire = hMois * t;
+    document.getElementById('res-heures').textContent  = hMois.toFixed(2) + ' h';
+    document.getElementById('res-salaire').textContent = salaire.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+
+    box.style.display = 'block';
+    msg.style.display = 'none';
+  }
+
+
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPrevTab(id, btn) {
+  document.querySelectorAll('.prev-panel').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('prev-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── HELPERS DATE ─────────────────────────────────────────────────────────────
+function parseDate(str) {
+  // str = "YYYY-MM-DD"
+  var p = str.split('-');
+  return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+}
+
+function addDays(date, n) {
+  var d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function addMonths(date, n) {
+  var d = new Date(date);
+  d.setMonth(d.getMonth() + n);
+  return d;
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatDateShort(date) {
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function diffJours(d1, d2) {
+  return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+}
+
+function dureePEDays(type, cat, semainesCDD) {
+  if (type === 'CDD') {
+    var mois = semainesCDD / 4.333;
+    if (mois <= 6) return Math.min(semainesCDD, 14); // jours
+    else return null; // 1 mois
+  }
+  // CDI
+  if (cat === 'employe')  return null; // 2 mois
+  if (cat === 'maitrise') return null; // 3 mois
+  if (cat === 'cadre')    return null; // 4 mois
+  return null;
+}
+
+// Retourne {jours, mois, label} pour la durée initiale de PE
+function getDureeInitiale(type, cat, semainesCDD) {
+  if (type === 'CDD') {
+    var moisCDD = semainesCDD / 4.333;
+    if (moisCDD <= 6) {
+      var j = Math.min(semainesCDD, 14);
+      return { jours: j, mois: 0, label: j + ' jour' + (j > 1 ? 's' : '') };
+    } else {
+      return { jours: null, mois: 1, label: '1 mois' };
+    }
+  }
+  // CDI
+  var map = { employe: 2, maitrise: 3, cadre: 4 };
+  var m = map[cat];
+  return { jours: null, mois: m, label: m + ' mois' };
+}
+
+function getRenouvDuree(cat) {
+  var map = { employe: 2, maitrise: 3, cadre: 4 };
+  return map[cat];
+}
+
+// Calcul date fin PE
+function finPE(dateEmbauche, duree, joursSuspension, joursCDDPrec) {
+  joursSuspension = joursSuspension || 0;
+  joursCDDPrec    = joursCDDPrec    || 0;
+  var fin;
+  if (duree.jours !== null) {
+    fin = addDays(dateEmbauche, duree.jours - 1 + joursSuspension);
+  } else {
+    fin = addDays(addMonths(dateEmbauche, duree.mois), joursSuspension - 1);
+  }
+  // Imputer les CDD précédents : ils réduisent la PE restante
+  if (joursCDDPrec > 0) {
+    fin = addDays(fin, -joursCDDPrec);
+  }
+  return fin;
+}
+
+// Délai de prévenance en heures/jours/semaines/mois selon présence
+function getPrevenance(joursPresence) {
+  if (joursPresence < 8)  return { label: '24 heures',   heures: 24,  jours: 1 };
+  if (joursPresence <= 30) return { label: '48 heures',  heures: 48,  jours: 2 };
+  if (joursPresence <= 90) return { label: '2 semaines', heures: null, jours: 14 };
+  return                          { label: '1 mois',     heures: null, mois: 1 };
+}
+
+function dateNotif(dateFin, prev) {
+  if (prev.mois) return addMonths(dateFin, -prev.mois);
+  return addDays(dateFin, -prev.jours);
+}
+
+// ── 1. PÉRIODE D'ESSAI ───────────────────────────────────────────────────────
+var peType = null;
+
+function setPEType(t) {
+  peType = t;
+  document.getElementById('pe-tab-cdi').classList.toggle('active', t === 'CDI');
+  document.getElementById('pe-tab-cdd').classList.toggle('active', t === 'CDD');
+  document.getElementById('pe-bloc-categorie').classList.toggle('hidden', t !== 'CDI');
+  document.getElementById('pe-bloc-cdd-duree').classList.toggle('hidden', t !== 'CDD');
+  document.getElementById('pe-bloc-dates').classList.remove('hidden');
+  document.getElementById('pe-bloc-cdd-prec').classList.toggle('hidden', t !== 'CDI');
+  // reset
+  ['pe-categorie','pe-renouvellement','pe-cdd-prec','pe-cdd-cdd-prec'].forEach(id => {
+    var el = document.getElementById(id);
+    if (el && el.tagName === 'SELECT') el.value = el.options[0].value;
+  });
+  ['pe-cdd-fin','pe-embauche','pe-cdd-prec-debut','pe-cdd-prec-fin','pe-suspension','pe-cdd-cdd-prec-debut','pe-cdd-cdd-prec-fin'].forEach(id => {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('pe-bloc-jours-cdd').classList.add('hidden');
+  var bcp2 = document.getElementById('pe-bloc-cdd-cdd-prec'); if(bcp2) bcp2.classList.add('hidden');
+  document.getElementById('warn-carence-pe').classList.add('hidden');
+  document.getElementById('r-pe').style.display = 'none';
+  document.getElementById('alert-pe').style.display = 'none';
+  document.getElementById('e-pe').style.display = 'block';
+  document.getElementById('e-pe').textContent = 'Renseigner les champs pour obtenir le résultat';
+}
+
+function toggleCDDPrec() {
+  var val = document.getElementById('pe-cdd-prec').value;
+  document.getElementById('pe-bloc-jours-cdd').classList.toggle('hidden', val !== 'oui');
+  if (val !== 'oui') document.getElementById('warn-carence-pe').classList.add('hidden');
+  calcPE();
+}
+
+function toggleCDDPrecCDD() {
+  var val = document.getElementById('pe-cdd-cdd-prec').value;
+  document.getElementById('pe-bloc-cdd-cdd-prec').classList.toggle('hidden', val !== 'oui');
+  calcPE();
+}
+
+function calcPE() {
+  var r  = document.getElementById('r-pe');
+  var e  = document.getElementById('e-pe');
+  var al = document.getElementById('alert-pe');
+  r.style.display  = 'none';
+  e.style.display  = 'block';
+  al.style.display = 'none';
+
+  if (!peType) return;
+
+  var embaucheStr = document.getElementById('pe-embauche').value;
+  if (!embaucheStr) return;
+  var dateEmbauche = parseDate(embaucheStr);
+
+  var suspension   = parseInt(document.getElementById('pe-suspension').value) || 0;
+  var joursCDDPrec = 0;
+
+  // CDI
+  if (peType === 'CDI') {
+    var cat = document.getElementById('pe-categorie').value;
+    if (!cat) return;
+
+    var cddPrecOui = document.getElementById('pe-cdd-prec').value === 'oui';
+    if (cddPrecOui) {
+      var debutPrec = document.getElementById('pe-cdd-prec-debut').value;
+      var finPrec   = document.getElementById('pe-cdd-prec-fin').value;
+      if (debutPrec && finPrec) {
+        var dp1 = new Date(debutPrec), dp2 = new Date(finPrec);
+        var errPrec = document.getElementById('err-prec-dates');
+        if (dp2 <= dp1) {
+          errPrec.textContent = '⚠ La date de fin doit être postérieure à la date de début du CDD précédent.';
+          if (errPrec) errPrec.style.display = 'block';
+          return;
+        }
+        if (dp2 >= dateEmbauche) {
+          errPrec.textContent = '⚠ Le CDD précédent doit être terminé avant la date d\'embauche du CDI (' + formatDateShort(dateEmbauche) + ').';
+          if (errPrec) errPrec.style.display = 'block';
+          return;
+        }
+        if (errPrec) errPrec.style.display = 'none';
+        document.getElementById('warn-carence-pe').classList.remove('hidden');
+        joursCDDPrec = Math.round((dp2 - dp1) / (1000*60*60*24)) + 1;
+        if (joursCDDPrec < 0) joursCDDPrec = 0;
+      }
+    }
+
+    var renouv    = document.getElementById('pe-renouvellement').value === 'oui';
+    var duree     = getDureeInitiale('CDI', cat, null);
+    var finInit   = finPE(dateEmbauche, duree, suspension, joursCDDPrec);
+
+    // Jours de présence = date fin PE initiale - date embauche (approximation)
+    var joursPresence = diffJours(dateEmbauche, finInit);
+    var prev          = getPrevenance(joursPresence);
+    var notif         = dateNotif(finInit, prev);
+
+    // Affichage
+    var joursRestants = diffJours(dateEmbauche, finPE(dateEmbauche, duree, 0, 0)); // durée brute en jours
+    var joursEffectifs = joursRestants - joursCDDPrec;
+    var dureeLabel;
+    if (joursCDDPrec > 0) {
+      if (joursEffectifs <= 0) {
+        // CDD précédent >= durée légale de PE : PE entièrement consommée
+        setVal('rpe-duree-val', '0 jour');
+        setVal('rpe-duree-sub', 'PE entièrement consommée par le CDD précédent (' + joursCDDPrec + ' j. ≥ ' + joursRestants + ' j. légaux). Aucune période d\'essai applicable.');
+        setVal('rpe-fin-val', '—'); setVal('rpe-fin-sub', '');
+        setVal('rpe-prev-val', '—');
+        setVal('rpe-notif-val', 'Aucun délai de prévenance');
+        setVal('rpe-notif-sub', 'PE nulle : pas de prévenance à respecter.');
+        document.getElementById('rpe-renouvellement-section').classList.add('hidden');
+        document.getElementById('rpe-renouv-notif-section').classList.add('hidden');
+        setVal('rpe-ref', 'Art. L.1221-19 & L.1243-11 CT');
+        r.style.display = 'block'; e.style.display = 'none';
+        return;
+      }
+      dureeLabel = joursEffectifs + ' jour' + (joursEffectifs > 1 ? 's' : '');
+    } else {
+      dureeLabel = duree.label;
+    }
+    setVal('rpe-duree-val', dureeLabel);
+    setVal('rpe-duree-sub', joursCDDPrec > 0 ? duree.label + ' légaux − ' + joursCDDPrec + ' j. de CDD précédent = ' + joursEffectifs + ' jour' + (joursEffectifs > 1 ? 's' : '') + ' effectifs' : '');
+    setVal('rpe-fin-val',    formatDate(finInit));
+    setVal('rpe-fin-sub',    suspension > 0 ? 'Dont ' + suspension + ' jour(s) de suspension ajoutés' : '');
+    setVal('rpe-prev-val',   prev.label);
+    setVal('rpe-notif-val',  formatDate(notif));
+    setVal('rpe-notif-sub',  'Notifier au plus tard le ' + formatDateShort(notif) + ' pour respecter le délai');
+
+    // Renouvellement
+    var renouvSec = document.getElementById('rpe-renouvellement-section');
+    var renouvNotifSec = document.getElementById('rpe-renouv-notif-section');
+    if (renouv) {
+      var dureeR    = getDureeInitiale('CDI', cat, null);
+      dureeR.mois   = getRenouvDuree(cat);
+      dureeR.label  = '+ ' + dureeR.mois + ' mois';
+      var finRenouvBase = addMonths(finInit, 1); // PE renouvelée commence le lendemain de la fin init
+      var finRenouvTot  = addDays(addMonths(dateEmbauche, getDureeInitiale('CDI',cat,null).mois + getRenouvDuree(cat)), suspension - 1);
+      if (joursCDDPrec > 0) finRenouvTot = addDays(finRenouvTot, -joursCDDPrec);
+      var joursPresR    = diffJours(dateEmbauche, finRenouvTot);
+      var prevR         = getPrevenance(joursPresR);
+      var notifR        = dateNotif(finRenouvTot, prevR);
+
+      renouvSec.classList.remove('hidden');
+      renouvNotifSec.classList.remove('hidden');
+      setVal('rpe-renouv-val',       formatDate(finRenouvTot));
+      setVal('rpe-renouv-sub',       'PE totale avec renouvellement : ' + (getDureeInitiale('CDI',cat,null).mois + getRenouvDuree(cat)) + ' mois');
+      setVal('rpe-renouv-notif-val', formatDate(notifR));
+      setVal('rpe-renouv-notif-sub', 'Notifier au plus tard le ' + formatDateShort(notifR) + ' (PE renouvelée)');
+    } else {
+      renouvSec.classList.add('hidden');
+      renouvNotifSec.classList.add('hidden');
+    }
+
+    var detail = 'Embauche : ' + formatDateShort(dateEmbauche);
+    if (suspension > 0) detail += '\nSuspension : ' + suspension + ' jour(s) (maladie, CP…)';
+    if (joursCDDPrec > 0) {
+      var fmtD = function(s){ return new Date(s).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); };
+      var debutPrec2 = document.getElementById('pe-cdd-prec-debut').value;
+      var finPrec2   = document.getElementById('pe-cdd-prec-fin').value;
+      detail += '\nCDD précédent imputé : du ' + fmtD(debutPrec2) + ' au ' + fmtD(finPrec2) + ' (' + joursCDDPrec + ' jours déduits)';
+    }
+    detail += '\nNombre de jours de présence estimé : ' + joursPresence + ' j → prévenance : ' + prev.label;
+
+    setVal('rpe-detail', detail);
+    setVal('rpe-ref',    'Art. L.1221-19 & L.1221-25 CT');
+
+    // Alerte si notification déjà dépassée
+    var today = new Date(); today.setHours(0,0,0,0);
+    if (notif < today) {
+      al.textContent = '⚠ Attention : la date limite de notification (' + formatDateShort(notif) + ') est déjà dépassée.';
+      al.style.display = 'block';
+    }
+
+    r.style.display = 'block';
+    e.style.display = 'none';
+    return;
+  }
+
+  // CDD
+  if (peType === 'CDD') {
+    var finStr   = document.getElementById('pe-cdd-fin').value;
+    if (!embaucheStr || !finStr) return;
+
+    var dateDebut = dateEmbauche;
+    var dateFin   = parseDate(finStr);
+    var errPE = document.getElementById('err-pe-dates');
+    if (dateFin <= dateDebut) {
+      if (errPE) errPE.style.display = 'block';
+      return;
+    }
+    if (errPE) errPE.style.display = 'none';
+
+    // Déduction CDD précédent (règle jurisprudentielle Cass. Soc. 13/06/2012)
+    var joursCDDPrecCDD = 0;
+    var cddPrecCDDOui = document.getElementById('pe-cdd-cdd-prec').value === 'oui';
+    if (cddPrecCDDOui) {
+      var debutPrecCDD = document.getElementById('pe-cdd-cdd-prec-debut').value;
+      var finPrecCDD   = document.getElementById('pe-cdd-cdd-prec-fin').value;
+      if (debutPrecCDD && finPrecCDD) {
+        var dp1c = new Date(debutPrecCDD), dp2c = new Date(finPrecCDD);
+        var errCDDPrec = document.getElementById('err-cdd-prec-dates');
+        if (dp2c <= dp1c) {
+          if (errCDDPrec) errCDDPrec.style.display = 'block';
+          return;
+        }
+        if (dp2c >= dateDebut) {
+          if (errCDDPrec) { errCDDPrec.textContent = '⚠ Le CDD précédent doit être terminé avant la date d\'embauche (' + formatDateShort(dateDebut) + ').'; errCDDPrec.style.display = 'block'; }
+          return;
+        }
+        if (errCDDPrec) errCDDPrec.style.display = 'none';
+        joursCDDPrecCDD = Math.round((dp2c - dp1c) / (1000*60*60*24)) + 1;
+        if (joursCDDPrecCDD < 0) joursCDDPrecCDD = 0;
+      }
+    }
+
+    // Durée CDD en jours calendaires → semaines pour getDureeInitiale
+    var joursCDD = diffJours(dateDebut, dateFin) + 1;
+    var sem      = Math.floor(joursCDD / 7);
+    var moisCDD  = joursCDD / 30.44;
+
+    if (sem === 0) {
+      setVal('rpe-duree-val', '0 jour');
+      setVal('rpe-duree-sub', 'Contrat inférieur à 1 semaine : aucune période d\'essai applicable.');
+      setVal('rpe-fin-val', '—'); setVal('rpe-fin-sub', '');
+      setVal('rpe-prev-val', '—');
+      setVal('rpe-notif-val', 'Aucun délai de prévenance');
+      setVal('rpe-notif-sub', 'PE nulle : pas de prévenance à respecter.');
+      document.getElementById('rpe-renouvellement-section').classList.add('hidden');
+      document.getElementById('rpe-renouv-notif-section').classList.add('hidden');
+      setVal('rpe-detail', 'Durée CDD inférieure à 1 semaine → PE = 0 jour → aucun délai de prévenance.');
+      setVal('rpe-ref', 'Art. L.1242-10 CT');
+      r.style.display = 'block'; e.style.display = 'none'; return;
+    }
+    var duree   = getDureeInitiale('CDD', null, sem);
+    var finInit = finPE(dateDebut, duree, suspension, joursCDDPrecCDD);
+
+    // Vérifier si PE entièrement consommée par CDD précédent
+    if (joursCDDPrecCDD > 0) {
+      var joursRestantsCDD = diffJours(dateDebut, finPE(dateDebut, duree, 0, 0));
+      if (joursCDDPrecCDD >= joursRestantsCDD) {
+        setVal('rpe-duree-val', '0 jour');
+        setVal('rpe-duree-sub', 'PE entièrement consommée par le CDD précédent (' + joursCDDPrecCDD + ' j. ≥ ' + joursRestantsCDD + ' j. légaux). Aucune période d\'essai applicable.');
+        setVal('rpe-fin-val', '—'); setVal('rpe-fin-sub', '');
+        setVal('rpe-prev-val', '—');
+        setVal('rpe-notif-val', 'Aucun délai de prévenance');
+        setVal('rpe-notif-sub', 'PE nulle : pas de prévenance à respecter.');
+        document.getElementById('rpe-renouvellement-section').classList.add('hidden');
+        document.getElementById('rpe-renouv-notif-section').classList.add('hidden');
+        setVal('rpe-detail', 'CDD précédent de ' + joursCDDPrecCDD + ' jours ≥ PE légale de ' + joursRestantsCDD + ' jours → PE nulle.');
+        setVal('rpe-ref', 'Art. L.1242-10 CT · Cass. Soc. 13/06/2012, n°10-28286 (règle jurisprudentielle)');
+        r.style.display = 'block'; e.style.display = 'none'; return;
+      }
+    }
+
+    var joursPresence = diffJours(dateDebut, finInit);
+    var prev    = getPrevenance(joursPresence);
+    var notif   = dateNotif(finInit, prev);
+
+    document.getElementById('rpe-renouvellement-section').classList.add('hidden');
+    document.getElementById('rpe-renouv-notif-section').classList.add('hidden');
+
+    var dureeLabelCDD;
+    if (joursCDDPrecCDD > 0) {
+      var joursEffectifsCDD = diffJours(dateDebut, finInit);
+      dureeLabelCDD = joursEffectifsCDD + ' jour' + (joursEffectifsCDD > 1 ? 's' : '');
+      setVal('rpe-duree-sub', duree.label + ' légaux − ' + joursCDDPrecCDD + ' j. de CDD précédent = ' + joursEffectifsCDD + ' jour' + (joursEffectifsCDD > 1 ? 's' : '') + ' effectifs');
+    } else {
+      dureeLabelCDD = duree.label;
+      setVal('rpe-duree-sub', moisCDD <= 6 ? 'CDD de 6 mois ou moins (' + joursCDD + ' jours) : 1 jour/semaine, plafond 14 jours' : 'CDD de plus de 6 mois (' + joursCDD + ' jours) : 1 mois fixe');
+    }
+    setVal('rpe-duree-val', dureeLabelCDD);
+    setVal('rpe-fin-val',   formatDate(finInit));
+    setVal('rpe-fin-sub',   suspension > 0 ? 'Dont ' + suspension + ' jour(s) de suspension ajoutés' : '');
+    setVal('rpe-prev-val',  prev.label);
+    setVal('rpe-notif-val', formatDate(notif));
+    setVal('rpe-notif-sub', 'Notifier au plus tard le ' + formatDateShort(notif) + ' pour respecter le délai');
+
+    var detail = 'Début CDD : ' + formatDateShort(dateDebut) + '  →  Fin CDD : ' + formatDateShort(dateFin);
+    detail += '\nDurée : ' + joursCDD + ' jours calendaires (' + moisCDD.toFixed(1) + ' mois)';
+    if (suspension > 0) detail += '\nSuspension : ' + suspension + ' jour(s)';
+    if (joursCDDPrecCDD > 0) {
+      var fmtD2 = function(s){ return new Date(s).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); };
+      detail += '\nCDD précédent imputé : du ' + fmtD2(document.getElementById('pe-cdd-cdd-prec-debut').value) + ' au ' + fmtD2(document.getElementById('pe-cdd-cdd-prec-fin').value) + ' (' + joursCDDPrecCDD + ' jours déduits)';
+    }
+    detail += '\nJours de présence estimés : ' + joursPresence + ' → prévenance : ' + prev.label;
+    setVal('rpe-detail', detail);
+    var refCDD = 'Art. L.1221-25 & L.1242-10 CT';
+    if (joursCDDPrecCDD > 0) refCDD += ' · Cass. Soc. 13/06/2012, n°10-28286 (règle jurisprudentielle)';
+    setVal('rpe-ref', refCDD);
+
+    var today2 = new Date(); today2.setHours(0,0,0,0);
+    if (notif < today2) {
+      al.textContent = '⚠ Attention : la date limite de notification (' + formatDateShort(notif) + ') est déjà dépassée.';
+      al.style.display = 'block';
+    }
+
+    r.style.display = 'block';
+    e.style.display = 'none';
+  }
+}
+
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+
+
+
+
+function calculeCarence() {
+  var memePoste      = document.getElementById('ca-meme-poste').value;
+  var motifPrec      = document.getElementById('motif-prec') ? document.getElementById('motif-prec').value : '';
+  var motif          = document.getElementById('motif').value;
+  var renouvellement = document.getElementById('renouvellement').value;
+  var debutStr       = document.getElementById('ca-debut').value;
+  var finStr         = document.getElementById('ca-fin').value;
+
+  var blocMotifPrec  = document.getElementById('bloc-motif-prec');
+  var blocMotifNouv  = document.getElementById('bloc-motif-nouveau');
+  var blocDuree      = document.getElementById('bloc-duree');
+  var blocRenouv     = document.getElementById('bloc-renouvellement');
+  var box            = document.getElementById('ca-result-box');
+  var emptyMsg       = document.getElementById('ca-empty-msg');
+
+  // Reset affichage
+  box.style.display = 'none';
+  box.className = 'result-box';
+  emptyMsg.style.display = 'block';
+  blocMotifPrec.style.display  = 'none';
+  blocMotifNouv.style.display  = 'none';
+  blocDuree.style.display      = 'none';
+  blocRenouv.style.display     = 'none';
+
+  if (!memePoste) return;
+
+  // ── POSTE DIFFÉRENT → hors périmètre ─────────────────────────────
+  if (memePoste === 'non') {
+    afficherCarence('info',
+      'Hors périmètre',
+      'Le délai de carence s\'applique uniquement aux CDD successifs sur le même poste de travail. En cas de poste différent, aucune carence n\'est applicable.',
+      'Art. L.1244-3 CT — condition de même poste.'
+    );
+    return;
+  }
+
+  // ── MÊME POSTE → afficher motif précédent ────────────────────────
+  blocMotifPrec.style.display = 'block';
+  if (!motifPrec) return;
+
+  blocMotifNouv.style.display = 'block';
+  if (!motif) return;
+
+  // ── MATRICE DE DÉCISION ──────────────────────────────────────────
+  // Pas de carence : remplacement→remplacement, saisonnier→saisonnier,
+  //                  remplacement↔saisonnier (mixte)
+  // Carence : accroissement→accroissement (nouveau contrat),
+  //           remplacement/saisonnier→accroissement,
+  //           accroissement→remplacement/saisonnier
+
+  var precEstRempOuSaison = (motifPrec === 'remplacement' || motifPrec === 'saisonnier');
+  var nouvEstRempOuSaison = (motif    === 'remplacement' || motif    === 'saisonnier');
+
+  // Cas sans carence : les deux sont remplacement/saisonnier
+  if (precEstRempOuSaison && nouvEstRempOuSaison) {
+    afficherCarence('no-carence',
+      'Aucun délai de carence',
+      'Les motifs remplacement et saisonnier figurent parmi les exceptions légales à l\'obligation de carence, quel que soit l\'ordre ou la combinaison entre eux.',
+      'Art. L.1244-4 CT — exceptions légales au délai de carence.'
+    );
+    return;
+  }
+
+  // Cas avec carence : au moins un des deux est accroissement
+  // → besoin du renouvellement si accroissement→accroissement
+  if (motifPrec === 'accroissement' && motif === 'accroissement') {
+    blocRenouv.style.display = 'block';
+    if (!renouvellement) return;
+
+    if (renouvellement === 'oui') {
+      afficherCarence('no-carence',
+        'Aucun délai de carence',
+        'Le renouvellement du même contrat (avenant de renouvellement) n\'est pas soumis au délai de carence — il s\'agit de la continuation du contrat initial.',
+        'Art. L.1243-13 CT — le renouvellement ne constitue pas un nouveau contrat.'
+      );
+      return;
+    }
+    // renouvellement === 'non' → carence avec calcul
+  }
+
+  // Tous les cas de carence nécessitent les dates
+  blocDuree.style.display = 'block';
+  if (!debutStr || !finStr) return;
+
+  var d1 = new Date(debutStr), d2 = new Date(finStr);
+  var errDate = document.getElementById('err-ca-dates');
+  if (d2 <= d1) {
+    if (errDate) errDate.style.display = 'block';
+    return;
+  }
+  if (errDate) errDate.style.display = 'none';
+
+  var duree = Math.round((d2 - d1) / (1000*60*60*24)) + 1;
+  var carence;
+  if (duree > 14) {
+    carence = Math.ceil(duree / 3);
+  } else {
+    carence = Math.ceil(duree / 2);
+  }
+
+  var regle = duree > 14
+    ? 'Contrat > 14 jours : carence = 1/3 de la durée arrondie au jour supérieur.'
+    : 'Contrat ≤ 14 jours : carence = 1/2 de la durée arrondie au jour supérieur.';
+
+  var fmt = function(s){ var d=new Date(s); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); };
+  var dateFinCDD = new Date(finStr);
+  var dateFinCarence = new Date(dateFinCDD);
+  dateFinCarence.setDate(dateFinCarence.getDate() + carence);
+  var fmtLong = function(d){ return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
+  var dateFinCarenceStr = fmtLong(dateFinCarence);
+
+  var motifLabel = { remplacement: 'remplacement', accroissement: 'accroissement', saisonnier: 'saisonnier' };
+  var contextDetail = 'CDD précédent (' + motifLabel[motifPrec] + ') : du ' + fmt(debutStr) + ' au ' + fmt(finStr) + ' (' + duree + ' jours).\n'
+    + 'Nouveau CDD (' + motifLabel[motif] + ') : délai de carence obligatoire.\n'
+    + regle + '\n\nLe délai court à compter du lendemain du ' + fmt(finStr) + ' (week-ends inclus).\nDurée minimale à respecter : ' + carence + ' jour' + (carence > 1 ? 's' : '') + ' calendaires.';
+
+  afficherCarence('carence',
+    'Délai de carence obligatoire',
+    contextDetail,
+    'Art. L.1244-3 CT — délai de carence entre deux CDD successifs sur le même poste.',
+    carence, dateFinCarenceStr);
+}
+
+function afficherCarence(type, title, detail, ref, jours, dateFin) {
+  var box = document.getElementById('ca-result-box');
+  box.className = 'result-box ' + type;
+  document.getElementById('ca-res-title').textContent  = title;
+  var mainEl = document.getElementById('ca-res-main');
+  if (type === 'no-carence') {
+    mainEl.innerHTML = '✔ Pas de carence';
+  } else if (type === 'carence' && jours) {
+    mainEl.innerHTML = '⚠ <span style="font-size:36px;font-weight:700;">' + jours + ' jour' + (jours > 1 ? 's' : '') + '</span>';
+  } else {
+    mainEl.innerHTML = '⛔ Attention';
+  }
+  // Date de fin de carence
+  var datefinEl = document.getElementById('ca-res-date-fin');
+  if (type === 'carence' && dateFin) {
+    document.getElementById('ca-res-date-val').textContent = dateFin;
+    datefinEl.style.display = 'block';
+    document.getElementById('ca-res-divider').style.display = 'block';
+  } else {
+    datefinEl.style.display = 'none';
+  }
+  document.getElementById('ca-res-detail').innerText   = detail;
+  document.getElementById('ca-res-ref').textContent    = ref;
+  box.style.display = 'block';
+  document.getElementById('ca-empty-msg').style.display = 'none';
+}
+
+</script>
+</body>
+</html>
