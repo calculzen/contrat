@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Outils Contrat</title>
+<title>Outils Contrat — Zenitude Groupe</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@500&display=swap');
 
@@ -374,6 +374,10 @@
         <p class="rlabel">Salaire brut mensuel</p>
         <p class="rvalue" id="res-salaire">—</p>
       </div>
+      <div class="result-item">
+        <p class="rlabel">Salaire brut annuel</p>
+        <p class="rvalue" id="res-salaire-annuel">—</p>
+      </div>
     </div>
     <div class="result-footer">
       <span>Base 52/12</span>
@@ -594,7 +598,7 @@
     </select>
   </div>
 
-  <!-- Motif CDD précédent (si même poste) -->
+  <!-- Motif CDD précédent -->
   <div class="field" id="bloc-motif-prec" style="display:none;">
     <label class="field-label" for="motif-prec">Motif du CDD précédent</label>
     <select id="motif-prec" onchange="calculeCarence()">
@@ -602,10 +606,11 @@
       <option value="remplacement">Remplacement d'un salarié absent</option>
       <option value="accroissement">Accroissement temporaire d'activité</option>
       <option value="saisonnier">Contrat saisonnier</option>
+      <option value="extra">Extra / CDD d'usage</option>
     </select>
   </div>
 
-  <!-- Motif nouveau CDD (si même poste) -->
+  <!-- Motif nouveau CDD -->
   <div class="field" id="bloc-motif-nouveau" style="display:none;">
     <label class="field-label" for="motif">Motif du nouveau CDD</label>
     <select id="motif" onchange="calculeCarence()">
@@ -613,6 +618,7 @@
       <option value="remplacement">Remplacement d'un salarié absent</option>
       <option value="accroissement">Accroissement temporaire d'activité</option>
       <option value="saisonnier">Contrat saisonnier</option>
+      <option value="extra">Extra / CDD d'usage</option>
     </select>
   </div>
 
@@ -753,17 +759,28 @@ function showMain(id, btn) {
       b.classList.toggle('active', parseFloat(b.textContent) === h);
     });
 
-    if (isNaN(h) || isNaN(t) || h <= 0 || t <= 0) {
+    // Heures invalides : rien à afficher
+    if (isNaN(h) || h <= 0) {
       box.style.display = 'none';
       msg.style.display = 'block';
       return;
     }
 
+    // Heures valides : on calcule et affiche les heures mensuelles
     var coef   = 52 / 12;
-    var hMois  = h * coef;
-    var salaire = hMois * t;
-    document.getElementById('res-heures').textContent  = hMois.toFixed(2) + ' h';
-    document.getElementById('res-salaire').textContent = salaire.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+    var hMois  = Math.round(h * coef * 100) / 100;
+    document.getElementById('res-heures').textContent = hMois.toFixed(2) + ' h';
+
+    // Salaire : seulement si le taux est renseigné
+    if (isNaN(t) || t <= 0) {
+      document.getElementById('res-salaire').textContent         = '—';
+      document.getElementById('res-salaire-annuel').textContent  = '—';
+    } else {
+      var salaire = hMois * t;
+      var salaireAnnuel = salaire * 12;
+      document.getElementById('res-salaire').textContent = salaire.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+      document.getElementById('res-salaire-annuel').textContent = salaireAnnuel.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+    }
 
     box.style.display = 'block';
     msg.style.display = 'none';
@@ -1211,13 +1228,49 @@ function calculeCarence() {
 
   if (!memePoste) return;
 
-  // ── POSTE DIFFÉRENT → hors périmètre ─────────────────────────────
+  // ── POSTE DIFFÉRENT → politique interne Zenitude ─────────────────
+  // Légalement : pas de carence obligatoire sur poste différent, mais un
+  // « délai raisonnable » apprécié au cas par cas par les juges.
+  // Exception (L.1244-1) : succession immédiate possible, sans aucun délai,
+  // si les deux contrats relèvent de remplacement / saisonnier / CDD d'usage.
+  // Hors exception, choix d'entreprise : appliquer la carence légale.
   if (memePoste === 'non') {
-    afficherCarence('info',
-      'Hors périmètre',
-      'Le délai de carence s\'applique uniquement aux CDD successifs sur le même poste de travail. En cas de poste différent, aucune carence n\'est applicable.',
-      'Art. L.1244-3 CT — condition de même poste.'
-    );
+    blocMotifPrec.style.display = 'block';
+    if (!motifPrec) return;
+    blocMotifNouv.style.display = 'block';
+    if (!motif) return;
+
+    var precExcepte = (motifPrec === 'remplacement' || motifPrec === 'saisonnier' || motifPrec === 'extra');
+    var nouvExcepte = (motif     === 'remplacement' || motif     === 'saisonnier' || motif     === 'extra');
+
+    // Les deux motifs exemptés → succession immédiate, aucun délai
+    if (precExcepte && nouvExcepte) {
+      afficherCarence('no-carence',
+        'Aucun délai',
+        'Sur poste différent, les motifs remplacement, saisonnier et CDD d\'usage permettent une succession immédiate sans délai, dès lors que les deux contrats successifs en relèvent.',
+        'Art. L.1244-1 CT — exceptions à toute interruption sur postes différents.'
+      );
+      return;
+    }
+
+    // Au moins un accroissement → politique interne (carence légale appliquée)
+    blocDuree.style.display = 'block';
+    if (!debutStr || !finStr) return;
+
+    var resPosteDiff = calculerCarence(debutStr, finStr);
+    if (!resPosteDiff) return;
+
+    var detailPosteDiff =
+      'CDD précédent : du ' + resPosteDiff.fmtDebut + ' au ' + resPosteDiff.fmtFin + ' (' + resPosteDiff.duree + ' jours).\n'
+      + 'Poste différent, motif non exempté : la loi n\'impose pas de carence, seulement un « délai raisonnable » apprécié au cas par cas.\n'
+      + 'Par prudence, Zenitude applique un délai équivalent à la carence légale.\n'
+      + resPosteDiff.regle + '\n\nLe délai court à compter du lendemain du ' + resPosteDiff.fmtFin + ' (week-ends inclus).\nDélai appliqué : ' + resPosteDiff.carence + ' jour' + (resPosteDiff.carence > 1 ? 's' : '') + ' calendaires.';
+
+    afficherCarence('carence',
+      'Délai appliqué (politique interne)',
+      detailPosteDiff,
+      'Choix d\'entreprise — la loi n\'impose qu\'un « délai raisonnable » sur poste différent (jurisprudence, pas d\'article chiffré).',
+      resPosteDiff.carence, resPosteDiff.dateFinCarenceStr);
     return;
   }
 
@@ -1235,15 +1288,15 @@ function calculeCarence() {
   //           remplacement/saisonnier→accroissement,
   //           accroissement→remplacement/saisonnier
 
-  var precEstRempOuSaison = (motifPrec === 'remplacement' || motifPrec === 'saisonnier');
-  var nouvEstRempOuSaison = (motif    === 'remplacement' || motif    === 'saisonnier');
+  var precEstRempOuSaison = (motifPrec === 'remplacement' || motifPrec === 'saisonnier' || motifPrec === 'extra');
+  var nouvEstRempOuSaison = (motif    === 'remplacement' || motif    === 'saisonnier' || motif    === 'extra');
 
-  // Cas sans carence : les deux sont remplacement/saisonnier
+  // Cas sans carence : les deux sont remplacement/saisonnier/extra
   if (precEstRempOuSaison && nouvEstRempOuSaison) {
     afficherCarence('no-carence',
       'Aucun délai de carence',
-      'Les motifs remplacement et saisonnier figurent parmi les exceptions légales à l\'obligation de carence, quel que soit l\'ordre ou la combinaison entre eux.',
-      'Art. L.1244-4 CT — exceptions légales au délai de carence.'
+      'Les motifs remplacement, saisonnier et CDD d\'usage figurent parmi les exceptions légales à l\'obligation de carence, quel que soit l\'ordre ou la combinaison entre eux.',
+      'Art. L.1244-4 / L.1244-4-1 CT — exceptions légales au délai de carence.'
     );
     return;
   }
@@ -1269,43 +1322,51 @@ function calculeCarence() {
   blocDuree.style.display = 'block';
   if (!debutStr || !finStr) return;
 
-  var d1 = new Date(debutStr), d2 = new Date(finStr);
-  var errDate = document.getElementById('err-ca-dates');
-  if (d2 <= d1) {
-    if (errDate) errDate.style.display = 'block';
-    return;
-  }
-  if (errDate) errDate.style.display = 'none';
+  var res = calculerCarence(debutStr, finStr);
+  if (!res) return;
 
-  var duree = Math.round((d2 - d1) / (1000*60*60*24)) + 1;
-  var carence;
-  if (duree > 14) {
-    carence = Math.ceil(duree / 3);
-  } else {
-    carence = Math.ceil(duree / 2);
-  }
-
-  var regle = duree > 14
-    ? 'Contrat > 14 jours : carence = 1/3 de la durée arrondie au jour supérieur.'
-    : 'Contrat ≤ 14 jours : carence = 1/2 de la durée arrondie au jour supérieur.';
-
-  var fmt = function(s){ var d=new Date(s); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); };
-  var dateFinCDD = new Date(finStr);
-  var dateFinCarence = new Date(dateFinCDD);
-  dateFinCarence.setDate(dateFinCarence.getDate() + carence);
-  var fmtLong = function(d){ return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
-  var dateFinCarenceStr = fmtLong(dateFinCarence);
-
-  var motifLabel = { remplacement: 'remplacement', accroissement: 'accroissement', saisonnier: 'saisonnier' };
-  var contextDetail = 'CDD précédent (' + motifLabel[motifPrec] + ') : du ' + fmt(debutStr) + ' au ' + fmt(finStr) + ' (' + duree + ' jours).\n'
+  var motifLabel = { remplacement: 'remplacement', accroissement: 'accroissement', saisonnier: 'saisonnier', extra: 'extra / CDD d\'usage' };
+  var contextDetail = 'CDD précédent (' + motifLabel[motifPrec] + ') : du ' + res.fmtDebut + ' au ' + res.fmtFin + ' (' + res.duree + ' jours).\n'
     + 'Nouveau CDD (' + motifLabel[motif] + ') : délai de carence obligatoire.\n'
-    + regle + '\n\nLe délai court à compter du lendemain du ' + fmt(finStr) + ' (week-ends inclus).\nDurée minimale à respecter : ' + carence + ' jour' + (carence > 1 ? 's' : '') + ' calendaires.';
+    + res.regle + '\n\nLe délai court à compter du lendemain du ' + res.fmtFin + ' (week-ends inclus).\nDurée minimale à respecter : ' + res.carence + ' jour' + (res.carence > 1 ? 's' : '') + ' calendaires.';
 
   afficherCarence('carence',
     'Délai de carence obligatoire',
     contextDetail,
     'Art. L.1244-3 CT — délai de carence entre deux CDD successifs sur le même poste.',
-    carence, dateFinCarenceStr);
+    res.carence, res.dateFinCarenceStr);
+}
+
+// Calcul commun : durée du CDD, carence (1/3 ou 1/2), date de reprise.
+// Retourne null si les dates sont invalides (et gère l'affichage de l'erreur).
+function calculerCarence(debutStr, finStr) {
+  var d1 = new Date(debutStr), d2 = new Date(finStr);
+  var errDate = document.getElementById('err-ca-dates');
+  if (d2 <= d1) {
+    if (errDate) errDate.style.display = 'block';
+    return null;
+  }
+  if (errDate) errDate.style.display = 'none';
+
+  var duree = Math.round((d2 - d1) / (1000*60*60*24)) + 1;
+  var carence = (duree >= 14) ? Math.ceil(duree / 3) : Math.ceil(duree / 2);
+  var regle = duree >= 14
+    ? 'Contrat ≥ 14 jours : délai = 1/3 de la durée arrondie au jour supérieur.'
+    : 'Contrat < 14 jours : délai = 1/2 de la durée arrondie au jour supérieur.';
+
+  var fmt = function(s){ var d=new Date(s); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); };
+  var dateFinCarence = new Date(finStr);
+  dateFinCarence.setDate(dateFinCarence.getDate() + carence);
+  var fmtLong = function(d){ return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
+
+  return {
+    duree: duree,
+    carence: carence,
+    regle: regle,
+    fmtDebut: fmt(debutStr),
+    fmtFin: fmt(finStr),
+    dateFinCarenceStr: fmtLong(dateFinCarence)
+  };
 }
 
 function afficherCarence(type, title, detail, ref, jours, dateFin) {
