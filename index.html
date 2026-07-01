@@ -514,6 +514,13 @@
         <span class="unit">jours</span>
       </div>
     </div>
+
+    <!-- Date de rupture envisagée (optionnel — vérif dépassement du terme) -->
+    <div class="field">
+      <label class="field-label" for="pe-rupture">Date de rupture envisagée par l'employeur <span style="font-weight:400;color:var(--muted);">(optionnel)</span></label>
+      <input type="date" id="pe-rupture" onchange="calcPE()">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;">Renseignez la date à laquelle vous notifieriez la rupture pour vérifier que le délai de prévenance s'achève avant le terme de l'essai.</div>
+    </div>
   </div>
 
   <!-- Résultat PE -->
@@ -547,10 +554,11 @@
     <div class="result-section">
       <div class="result-section-title">Délai de prévenance applicable</div>
       <div class="result-value" id="rpe-prev-val"></div>
+      <div class="result-sub">Préavis à respecter par l'employeur <strong>avant de rompre</strong> l'essai. À ne pas confondre avec le renouvellement, qui prolonge l'essai.</div>
     </div>
 
     <div class="result-section">
-      <div class="result-section-title">Date limite de notification à l'employeur</div>
+      <div class="result-section-title">Date limite pour notifier la rupture au salarié</div>
       <div class="result-value" id="rpe-notif-val"></div>
       <div class="result-sub"   id="rpe-notif-sub"></div>
     </div>
@@ -562,6 +570,14 @@
         <div class="result-value" id="rpe-renouv-notif-val"></div>
         <div class="result-sub"   id="rpe-renouv-notif-sub"></div>
       </div>
+    </div>
+
+    <!-- Alerte dépassement du terme (option B) -->
+    <div id="rpe-depassement" class="hidden" style="margin-top:12px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:8px;padding:12px 14px;color:var(--red);line-height:1.55;font-size:12.5px;">
+      <div id="rpe-depassement-txt"></div>
+    </div>
+    <div id="rpe-ok-prev" class="hidden" style="margin-top:12px;background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:8px;padding:12px 14px;color:var(--orange);line-height:1.55;font-size:12.5px;">
+      <div id="rpe-ok-prev-txt"></div>
     </div>
 
     <div class="result-divider"></div>
@@ -700,12 +716,14 @@ function resetPE() {
   document.getElementById('warn-carence-pe').classList.add('hidden');
   document.getElementById('r-pe').style.display = 'none';
   document.getElementById('alert-pe').style.display = 'none';
+  document.getElementById('rpe-depassement').classList.add('hidden');
+  document.getElementById('rpe-ok-prev').classList.add('hidden');
   document.getElementById('e-pe').style.display = 'block';
   document.getElementById('e-pe').textContent = 'Sélectionner le type de contrat pour commencer';
   ['pe-categorie','pe-renouvellement','pe-cdd-prec','pe-cdd-cdd-prec'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = el.options[0].value;
   });
-  ['pe-cdd-fin','pe-embauche','pe-cdd-prec-debut','pe-cdd-prec-fin','pe-suspension','pe-cdd-cdd-prec-debut','pe-cdd-cdd-prec-fin'].forEach(function(id){
+  ['pe-cdd-fin','pe-embauche','pe-cdd-prec-debut','pe-cdd-prec-fin','pe-suspension','pe-cdd-cdd-prec-debut','pe-cdd-cdd-prec-fin','pe-rupture'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
 }
@@ -892,6 +910,58 @@ function dateNotif(dateFin, prev) {
   return addDays(dateFin, -prev.jours);
 }
 
+// Option B — vérifie si le délai de prévenance dépasse le terme de l'essai.
+// dateEmbauche : Date ; termeDate : Date (fin PE, ou fin PE renouvelée si renouvellement).
+// Utilise la présence RÉELLE à la date de rupture saisie pour déterminer la prévenance.
+function verifierDepassement(dateEmbauche, termeDate) {
+  var boxDep = document.getElementById('rpe-depassement');
+  var boxOk  = document.getElementById('rpe-ok-prev');
+  boxDep.classList.add('hidden');
+  boxOk.classList.add('hidden');
+
+  var rupStr = document.getElementById('pe-rupture').value;
+  if (!rupStr) return;
+
+  var dateRup = new Date(rupStr);
+
+  if (dateRup < dateEmbauche) {
+    boxDep.classList.remove('hidden');
+    document.getElementById('rpe-depassement-txt').innerHTML =
+      '⚠ La date de rupture est antérieure à la date d\'embauche. Vérifiez la saisie.';
+    return;
+  }
+
+  if (dateRup > termeDate) {
+    boxDep.classList.remove('hidden');
+    document.getElementById('rpe-depassement-txt').innerHTML =
+      '⚠ <strong>Rupture postérieure au terme de l\'essai</strong> (' + formatDateShort(termeDate) + '). '
+      + 'À cette date le salarié n\'est plus en période d\'essai : la rupture relève du droit du licenciement, pas de la prévenance d\'essai.';
+    return;
+  }
+
+  var joursPresRup = diffJours(dateEmbauche, dateRup);
+  var prevRup = getPrevenance(joursPresRup);
+  var finPrev = prevRup.mois ? addMonths(dateRup, prevRup.mois) : addDays(dateRup, prevRup.jours);
+
+  if (finPrev > termeDate) {
+    var dep = diffJours(termeDate, finPrev);
+    boxDep.classList.remove('hidden');
+    document.getElementById('rpe-depassement-txt').innerHTML =
+      '⚠ <strong>Le délai de prévenance dépasse le terme de l\'essai.</strong><br>'
+      + 'Rupture notifiée le ' + formatDateShort(dateRup) + ' → prévenance de ' + prevRup.label
+      + ' courant jusqu\'au ' + formatDateShort(finPrev) + ', soit <strong>' + dep + ' jour' + (dep > 1 ? 's' : '')
+      + '</strong> après le terme (' + formatDateShort(termeDate) + ').<br>'
+      + 'La période d\'essai <strong>n\'est pas prolongée</strong>. Une indemnité compensatrice est due pour les ' + dep
+      + ' jour' + (dep > 1 ? 's' : '') + ' de prévenance non exécutés avant le terme (L.1221-25).';
+  } else {
+    boxOk.classList.remove('hidden');
+    document.getElementById('rpe-ok-prev-txt').innerHTML =
+      '✓ Rupture notifiée le ' + formatDateShort(dateRup) + ' → prévenance de ' + prevRup.label
+      + ' s\'achevant le ' + formatDateShort(finPrev) + ', avant le terme de l\'essai ('
+      + formatDateShort(termeDate) + '). Pas d\'indemnité compensatrice de prévenance.';
+  }
+}
+
 // ── 1. PÉRIODE D'ESSAI ───────────────────────────────────────────────────────
 var peType = null;
 
@@ -941,6 +1011,8 @@ function calcPE() {
   r.style.display  = 'none';
   e.style.display  = 'block';
   al.style.display = 'none';
+  document.getElementById('rpe-depassement').classList.add('hidden');
+  document.getElementById('rpe-ok-prev').classList.add('hidden');
 
   if (!peType) return;
 
@@ -1023,6 +1095,7 @@ function calcPE() {
     // Renouvellement
     var renouvSec = document.getElementById('rpe-renouvellement-section');
     var renouvNotifSec = document.getElementById('rpe-renouv-notif-section');
+    var termePE = finInit;
     if (renouv) {
       var dureeR    = getDureeInitiale('CDI', cat, null);
       dureeR.mois   = getRenouvDuree(cat);
@@ -1033,6 +1106,7 @@ function calcPE() {
       var joursPresR    = diffJours(dateEmbauche, finRenouvTot);
       var prevR         = getPrevenance(joursPresR);
       var notifR        = dateNotif(finRenouvTot, prevR);
+      termePE = finRenouvTot;
 
       renouvSec.classList.remove('hidden');
       renouvNotifSec.classList.remove('hidden');
@@ -1044,6 +1118,8 @@ function calcPE() {
       renouvSec.classList.add('hidden');
       renouvNotifSec.classList.add('hidden');
     }
+
+    verifierDepassement(dateEmbauche, termePE);
 
     var detail = 'Embauche : ' + formatDateShort(dateEmbauche);
     if (suspension > 0) detail += '\nSuspension : ' + suspension + ' jour(s) (maladie, CP…)';
@@ -1168,6 +1244,8 @@ function calcPE() {
     setVal('rpe-prev-val',  prev.label);
     setVal('rpe-notif-val', formatDate(notif));
     setVal('rpe-notif-sub', 'Notifier au plus tard le ' + formatDateShort(notif) + ' pour respecter le délai');
+
+    verifierDepassement(dateDebut, finInit);
 
     var detail = 'Début CDD : ' + formatDateShort(dateDebut) + '  →  Fin CDD : ' + formatDateShort(dateFin);
     detail += '\nDurée : ' + joursCDD + ' jours calendaires (' + moisCDD.toFixed(1) + ' mois)';
