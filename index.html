@@ -379,6 +379,7 @@
         <p class="rvalue" id="res-salaire-annuel">—</p>
       </div>
     </div>
+    <div id="res-detail-hsup" class="result-detail" style="display:none;margin-top:6px;"></div>
     <div class="result-footer">
       <span>Base 52/12</span>
     </div>
@@ -502,7 +503,7 @@
         </div>
       </div>
       <div id="warn-carence-pe" class="hidden" style="background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--orange);line-height:1.6;margin-top:8px;">
-        ⚠ Si le CDD précédent était un contrat d’accroissement d’activité, vérifiez que le délai de carence a bien été respecté avant cette embauche. Utilisez l’onglet “Délai de carence CDD” pour le calculer.
+        ⚠ Si le CDD précédent était un contrat d'accroissement d'activité, vérifiez que le délai de carence a bien été respecté avant cette embauche. Utilisez l'onglet "Délai de carence CDD" pour le calculer.
       </div>
     </div>
 
@@ -689,7 +690,7 @@
 
 </div> <!-- fin #app -->
 
-<div style="max-width:600px;margin:1.25rem auto 0;div style="max-width:600px;margin:1.25rem auto 0;padding:10px 16px;background:rgba(255,255,255,.6);border-radius:10px;font-size:10px;color:var(--muted);line-height:1.6;text-align:center;">
+<div style="max-width:600px;margin:1.25rem auto 0;padding:10px 16px;background:rgba(255,255,255,.6);border-radius:10px;font-size:10px;color:var(--muted);line-height:1.6;text-align:center;">
   Outils indicatifs à usage interne · Code du travail &amp; CCN HCR (IDCC 1979)
 </div>
 
@@ -766,11 +767,15 @@ function showMain(id, btn) {
     calcSalaire();
   }
 
+  // Majorations heures supplémentaires CCN HCR (IDCC 1979, avenant n°2 du 5 février 2007) :
+  // décompte hebdomadaire à partir de 35h. +10% de la 36e à la 39e h, +20% de la 40e à la 43e h,
+  // +50% à partir de la 44e h. Taux inférieurs au droit commun (25%/50%) mais validés par extension.
   function calcSalaire() {
     var h = parseFloat(document.getElementById('heures').value);
     var t = parseFloat(document.getElementById('taux').value);
     var box = document.getElementById('sal-result-box');
     var msg = document.getElementById('sal-empty-msg');
+    var detailHsup = document.getElementById('res-detail-hsup');
 
     // Sync boutons raccourcis
     document.querySelectorAll('.shortcut').forEach(function(b) {
@@ -784,20 +789,44 @@ function showMain(id, btn) {
       return;
     }
 
-    // Heures valides : on calcule et affiche les heures mensuelles
-    var coef   = 52 / 12;
-    var hMois  = Math.round(h * coef * 100) / 100;
+    var coef = 52 / 12;
+    var hMois = Math.round(h * coef * 100) / 100;
     document.getElementById('res-heures').textContent = hMois.toFixed(2) + ' h';
 
-    // Salaire : seulement si le taux est renseigné
+    // Décomposition en tranches hebdomadaires : base (≤35h), +10% (36-39e), +20% (40-43e), +50% (44e et +)
+    var base = Math.min(h, 35);
+    var tr10 = Math.max(0, Math.min(h, 39) - 35);
+    var tr20 = Math.max(0, Math.min(h, 43) - 39);
+    var tr50 = Math.max(0, h - 43);
+
     if (isNaN(t) || t <= 0) {
-      document.getElementById('res-salaire').textContent         = '—';
-      document.getElementById('res-salaire-annuel').textContent  = '—';
+      document.getElementById('res-salaire').textContent        = '—';
+      document.getElementById('res-salaire-annuel').textContent = '—';
+      detailHsup.style.display = 'none';
     } else {
-      var salaire = hMois * t;
+      var baseMois = base * coef;
+      var tr10Mois = tr10 * coef;
+      var tr20Mois = tr20 * coef;
+      var tr50Mois = tr50 * coef;
+
+      var salaire = (baseMois * t) + (tr10Mois * t * 1.10) + (tr20Mois * t * 1.20) + (tr50Mois * t * 1.50);
       var salaireAnnuel = salaire * 12;
+
       document.getElementById('res-salaire').textContent = salaire.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
       document.getElementById('res-salaire-annuel').textContent = salaireAnnuel.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+
+      if (tr10 > 0 || tr20 > 0 || tr50 > 0) {
+        var lignes = [];
+        lignes.push('Heures majorées (base hebdomadaire, CCN HCR avenant n°2) :');
+        lignes.push('Base ≤ 35h : ' + baseMois.toFixed(2) + ' h/mois × ' + t.toFixed(2) + ' € = ' + (baseMois * t).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }));
+        if (tr10 > 0) lignes.push('36e-39e h (+10%) : ' + tr10Mois.toFixed(2) + ' h/mois × ' + (t * 1.10).toFixed(2) + ' € = ' + (tr10Mois * t * 1.10).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }));
+        if (tr20 > 0) lignes.push('40e-43e h (+20%) : ' + tr20Mois.toFixed(2) + ' h/mois × ' + (t * 1.20).toFixed(2) + ' € = ' + (tr20Mois * t * 1.20).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }));
+        if (tr50 > 0) lignes.push('44e h et + (+50%) : ' + tr50Mois.toFixed(2) + ' h/mois × ' + (t * 1.50).toFixed(2) + ' € = ' + (tr50Mois * t * 1.50).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }));
+        detailHsup.textContent = lignes.join('\n');
+        detailHsup.style.display = 'block';
+      } else {
+        detailHsup.style.display = 'none';
+      }
     }
 
     box.style.display = 'block';
