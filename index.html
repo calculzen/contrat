@@ -804,10 +804,13 @@ function showMain(id, btn) {
       document.getElementById('res-salaire-annuel').textContent = '—';
       detailHsup.style.display = 'none';
     } else {
-      var baseMois = base * coef;
-      var tr10Mois = tr10 * coef;
-      var tr20Mois = tr20 * coef;
-      var tr50Mois = tr50 * coef;
+      // Chaque volume horaire mensuel par tranche est arrondi à 2 décimales
+      // avant d'être multiplié par le taux (cohérent avec le volume mensuel affiché
+      // et avec le calcul réel sur bulletin de paie).
+      var baseMois = Math.round(base * coef * 100) / 100;
+      var tr10Mois = Math.round(tr10 * coef * 100) / 100;
+      var tr20Mois = Math.round(tr20 * coef * 100) / 100;
+      var tr50Mois = Math.round(tr50 * coef * 100) / 100;
 
       var salaire = (baseMois * t) + (tr10Mois * t * 1.10) + (tr20Mois * t * 1.20) + (tr50Mois * t * 1.50);
       var salaireAnnuel = salaire * 12;
@@ -951,7 +954,7 @@ function verifierDepassement(dateEmbauche, termeDate) {
   var rupStr = document.getElementById('pe-rupture').value;
   if (!rupStr) return;
 
-  var dateRup = new Date(rupStr);
+  var dateRup = parseDate(rupStr);
 
   if (dateRup < dateEmbauche) {
     boxDep.classList.remove('hidden');
