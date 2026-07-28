@@ -1124,17 +1124,21 @@ function calcPE() {
     setVal('rpe-notif-val',  formatDate(notif));
     setVal('rpe-notif-sub',  'Notifier au plus tard le ' + formatDateShort(notif) + ' pour respecter le délai');
 
-    // Renouvellement
+    // Renouvellement — la durée du renouvellement ne peut jamais excéder la durée
+    // initiale de la PE (Cass. Soc. 29/06/2011, n°09-71.107). Si un CDD précédent a
+    // réduit la durée effective de la PE initiale, le renouvellement est plafonné
+    // à cette durée effective réduite, et non à la durée statutaire (2/3/4 mois).
     var renouvSec = document.getElementById('rpe-renouvellement-section');
     var renouvNotifSec = document.getElementById('rpe-renouv-notif-section');
     var termePE = finInit;
+    var renouvPlafonne = false;
     if (renouv) {
-      var dureeR    = getDureeInitiale('CDI', cat, null);
-      dureeR.mois   = getRenouvDuree(cat);
-      dureeR.label  = '+ ' + dureeR.mois + ' mois';
-      var finRenouvBase = addMonths(finInit, 1); // PE renouvelée commence le lendemain de la fin init
-      var finRenouvTot  = addDays(addMonths(dateEmbauche, getDureeInitiale('CDI',cat,null).mois + getRenouvDuree(cat)), suspension - 1);
-      if (joursCDDPrec > 0) finRenouvTot = addDays(finRenouvTot, -joursCDDPrec);
+      var renouvMoisStatutaire  = getRenouvDuree(cat);
+      var joursRenouvStatutaire = diffJours(addMonths(dateEmbauche, duree.mois), addMonths(dateEmbauche, duree.mois + renouvMoisStatutaire));
+      var joursRenouvEffectif   = Math.min(joursRenouvStatutaire, joursEffectifs);
+      renouvPlafonne = joursRenouvEffectif < joursRenouvStatutaire;
+
+      var finRenouvTot  = addDays(finInit, joursRenouvEffectif);
       var joursPresR    = diffJours(dateEmbauche, finRenouvTot);
       var prevR         = getPrevenance(joursPresR);
       var notifR        = dateNotif(finRenouvTot, prevR);
@@ -1142,8 +1146,10 @@ function calcPE() {
 
       renouvSec.classList.remove('hidden');
       renouvNotifSec.classList.remove('hidden');
-      setVal('rpe-renouv-val',       formatDate(finRenouvTot));
-      setVal('rpe-renouv-sub',       'PE totale avec renouvellement : ' + (getDureeInitiale('CDI',cat,null).mois + getRenouvDuree(cat)) + ' mois');
+      setVal('rpe-renouv-val', formatDate(finRenouvTot));
+      setVal('rpe-renouv-sub', renouvPlafonne
+        ? '⚠ Renouvellement plafonné à ' + joursRenouvEffectif + ' jour' + (joursRenouvEffectif > 1 ? 's' : '') + ' (au lieu de ' + renouvMoisStatutaire + ' mois statutaires) : la durée du renouvellement ne peut excéder la durée initiale effective de la PE.'
+        : 'PE totale avec renouvellement : ' + (duree.mois + renouvMoisStatutaire) + ' mois');
       setVal('rpe-renouv-notif-val', formatDate(notifR));
       setVal('rpe-renouv-notif-sub', 'Notifier au plus tard le ' + formatDateShort(notifR) + ' (PE renouvelée)');
     } else {
@@ -1164,7 +1170,7 @@ function calcPE() {
     detail += '\nNombre de jours de présence estimé : ' + joursPresence + ' j → prévenance : ' + prev.label;
 
     setVal('rpe-detail', detail);
-    setVal('rpe-ref',    'Art. L.1221-19 & L.1221-25 CT');
+    setVal('rpe-ref',    'Art. L.1221-19 & L.1221-25 CT' + (renouvPlafonne ? ' · Cass. Soc. 29/06/2011, n°09-71.107 (le renouvellement ne peut excéder la durée initiale)' : ''));
 
     // Alerte si notification déjà dépassée
     var today = new Date(); today.setHours(0,0,0,0);
