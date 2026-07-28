@@ -56,7 +56,7 @@
   /* ── NAVIGATION PRINCIPALE ── */
   .main-nav {
     max-width: 600px; margin: 0 auto 1.5rem;
-    display: grid; grid-template-columns: repeat(3, 1fr);
+    display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 6px; background: var(--card); border-radius: var(--radius);
     padding: 6px; box-shadow: var(--shadow);
   }
@@ -298,6 +298,15 @@
         <div class="splash-section-desc">Détermine si un délai de carence est obligatoire entre deux CDD successifs et calcule sa durée ainsi que la date de reprise possible.</div>
       </div>
     </div>
+    <div class="splash-section">
+      <div class="splash-section-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>
+      </div>
+      <div>
+        <div class="splash-section-title">Préavis de démission</div>
+        <div class="splash-section-desc">Calcule le préavis à respecter selon la catégorie et l'ancienneté (CCN HCR), avec prise en compte des prolongations (CP, AT, maladie professionnelle).</div>
+      </div>
+    </div>
   </div>
 
   <div class="splash-warning">
@@ -325,6 +334,7 @@
   <button class="main-nav-btn active" onclick="showMain('salaire', this)">Salaire<br>mensuel</button>
   <button class="main-nav-btn"        onclick="showMain('prevenance', this)">Période d'essai<br>&amp; prévenance</button>
   <button class="main-nav-btn"        onclick="showMain('carence', this)">Délai de<br>carence CDD</button>
+  <button class="main-nav-btn"        onclick="showMain('preavis', this)">Préavis de<br>démission</button>
 </nav>
 
 <div class="card active" id="tab-salaire">
@@ -683,6 +693,64 @@
   <div class="disclaimer">
     Outil basé sur le Code du travail (L.1244-3 à L.1244-4-1).<br>
     Vérifier l'absence de disposition dérogatoire dans la CCN HCR applicable.<br>
+    Ne se substitue pas à un avis juridique.
+  </div>
+
+</div>
+
+<div class="card" id="tab-preavis">
+
+  <div class="card-title">Préavis de démission</div>
+  <div class="card-subtitle">Calcule le préavis à respecter selon la catégorie et l'ancienneté — CCN HCR (IDCC 1979).</div>
+
+  <div class="field">
+    <label class="field-label" for="pr-categorie">Catégorie du salarié</label>
+    <select id="pr-categorie" onchange="calcPreavis()">
+      <option value="">-- Sélectionner --</option>
+      <option value="employe">Employé</option>
+      <option value="maitrise">Agent de maîtrise</option>
+      <option value="cadre">Cadre</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="pr-debut">Date d'effet du contrat</label>
+    <input type="date" id="pr-debut" onchange="calcPreavis()">
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="pr-demission">Date de démission (notification)</label>
+    <input type="date" id="pr-demission" onchange="calcPreavis()">
+    <div class="date-error" id="err-pr-dates">⚠ La date de démission doit être postérieure à la date d'effet du contrat.</div>
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="pr-prolongation">Jours de prolongation du préavis (CP déjà validés, arrêt pour maladie professionnelle, accident du travail)</label>
+    <div class="input-row">
+      <input type="number" id="pr-prolongation" min="0" placeholder="0 si aucun" oninput="calcPreavis()">
+      <span class="unit">jours</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;">Ces événements suspendent l'exécution du préavis : sa fin est reportée d'autant de jours. N'inclure que les congés déjà validés au moment du départ, un simple arrêt maladie ordinaire ne prolonge pas le préavis.</div>
+  </div>
+
+  <div id="pr-result-box" class="result-box">
+    <div class="result-title" id="pr-res-title">Préavis à respecter</div>
+    <div class="result-main" id="pr-res-main"></div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bleu);margin-bottom:4px;">Fin de préavis</div>
+    <div id="pr-res-fin" style="font-size:22px;font-weight:700;color:var(--bleu);font-family:'DM Mono',monospace;line-height:1.3;margin-bottom:10px;"></div>
+    <div class="result-divider"></div>
+    <div class="result-detail" id="pr-res-detail"></div>
+    <div class="result-ref" id="pr-res-ref">CCN HCR (IDCC 1979) — préavis de démission</div>
+  </div>
+
+  <div id="pr-empty-msg" class="empty-msg">
+    Renseigner les champs pour obtenir le résultat
+  </div>
+  <button class="btn-reset" onclick="resetPreavis()">↺ Réinitialiser</button>
+
+  <div class="disclaimer">
+    Outil basé sur la CCN HCR (IDCC 1979) — grille des préavis de démission.<br>
+    Vérifier l'absence de disposition contractuelle plus favorable au salarié.<br>
     Ne se substitue pas à un avis juridique.
   </div>
 
@@ -1510,6 +1578,126 @@ function afficherCarence(type, title, detail, ref, jours, dateFin) {
   document.getElementById('ca-res-ref').textContent    = ref;
   box.style.display = 'block';
   document.getElementById('ca-empty-msg').style.display = 'none';
+}
+
+// ── 4. PRÉAVIS DE DÉMISSION (CCN HCR — IDCC 1979) ────────────────────────────
+// Grille de préavis par catégorie / ancienneté, telle que définie par la CCN HCR.
+// Chaque seuil est exprimé en mois d'ancienneté à partir de la date d'effet du contrat ;
+// "mois: Infinity" représente le dernier palier (aucune borne supérieure).
+var PREAVIS_HCR = {
+  employe: [
+    { mois: 6,        label: '8 jours',  tranche: '< 6 mois d\'ancienneté' },
+    { mois: 24,       label: '15 jours', tranche: 'de 6 mois à 2 ans d\'ancienneté' },
+    { mois: Infinity, label: '1 mois',   tranche: '≥ 2 ans d\'ancienneté' }
+  ],
+  maitrise: [
+    { mois: 6,        label: '15 jours', tranche: '< 6 mois d\'ancienneté' },
+    { mois: 24,       label: '1 mois',   tranche: 'de 6 mois à 2 ans d\'ancienneté' },
+    { mois: Infinity, label: '2 mois',   tranche: '≥ 2 ans d\'ancienneté' }
+  ],
+  cadre: [
+    { mois: 6,        label: '1 mois',  tranche: '< 6 mois d\'ancienneté' },
+    { mois: Infinity, label: '3 mois',  tranche: '≥ 6 mois d\'ancienneté' }
+  ]
+};
+
+// Retourne le palier applicable de la grille selon la catégorie et l'ancienneté (dateDebut → dateFin)
+function getPreavisHCR(cat, dateDebut, dateFin) {
+  var paliers = PREAVIS_HCR[cat];
+  for (var i = 0; i < paliers.length; i++) {
+    if (paliers[i].mois === Infinity) return paliers[i];
+    var limite = addMonths(dateDebut, paliers[i].mois);
+    if (dateFin < limite) return paliers[i];
+  }
+  return paliers[paliers.length - 1];
+}
+
+// Formate l'ancienneté (dateDebut → dateFin) en "X an(s) Y mois" ou en jours si < 1 mois
+function formatAnciennete(dateDebut, dateFin) {
+  var years = dateFin.getFullYear() - dateDebut.getFullYear();
+  var months = dateFin.getMonth() - dateDebut.getMonth();
+  var days = dateFin.getDate() - dateDebut.getDate();
+  if (days < 0) months--;
+  if (months < 0) { years--; months += 12; }
+  var parts = [];
+  if (years > 0)  parts.push(years + ' an' + (years > 1 ? 's' : ''));
+  if (months > 0) parts.push(months + ' mois');
+  if (parts.length === 0) {
+    var j = diffJours(dateDebut, dateFin);
+    return j + ' jour' + (j > 1 ? 's' : '');
+  }
+  return parts.join(' ');
+}
+
+// Calcule la date de fin de préavis à partir du label ("8 jours", "1 mois"…)
+function dateFinPreavis(dateDemission, label) {
+  var n = parseInt(label, 10);
+  if (label.indexOf('jour') >= 0) return addDays(dateDemission, n);
+  return addMonths(dateDemission, n);
+}
+
+function resetPreavis() {
+  document.getElementById('pr-categorie').value = '';
+  document.getElementById('pr-debut').value = '';
+  document.getElementById('pr-demission').value = '';
+  document.getElementById('pr-prolongation').value = '';
+  document.getElementById('pr-result-box').style.display = 'none';
+  document.getElementById('pr-empty-msg').style.display = 'block';
+  var errEl = document.getElementById('err-pr-dates');
+  if (errEl) errEl.style.display = 'none';
+}
+
+function calcPreavis() {
+  var box   = document.getElementById('pr-result-box');
+  var msg   = document.getElementById('pr-empty-msg');
+  var errEl = document.getElementById('err-pr-dates');
+
+  box.style.display = 'none';
+  msg.style.display = 'block';
+  if (errEl) errEl.style.display = 'none';
+
+  var cat        = document.getElementById('pr-categorie').value;
+  var debutStr   = document.getElementById('pr-debut').value;
+  var demissStr  = document.getElementById('pr-demission').value;
+
+  if (!cat || !debutStr || !demissStr) return;
+
+  var dateDebut  = parseDate(debutStr);
+  var dateDemiss = parseDate(demissStr);
+
+  if (dateDemiss <= dateDebut) {
+    if (errEl) errEl.style.display = 'block';
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
+
+  var palier   = getPreavisHCR(cat, dateDebut, dateDemiss);
+  var ancLabel = formatAnciennete(dateDebut, dateDemiss);
+  var prolongation = parseInt(document.getElementById('pr-prolongation').value) || 0;
+  var finPreavBase = dateFinPreavis(dateDemiss, palier.label);
+  var finPreav = prolongation > 0 ? addDays(finPreavBase, prolongation) : finPreavBase;
+
+  var catLabel = { employe: 'Employé', maitrise: 'Agent de maîtrise', cadre: 'Cadre' };
+
+  document.getElementById('pr-res-title').textContent = 'Préavis à respecter — ' + catLabel[cat];
+  document.getElementById('pr-res-main').innerHTML = palier.label;
+  document.getElementById('pr-res-fin').textContent = formatDateShort(finPreav);
+
+  var detail = 'Date d\'effet du contrat : ' + formatDateShort(dateDebut)
+    + '\nDate de notification de la démission : ' + formatDateShort(dateDemiss)
+    + '\nAncienneté à la date de démission : ' + ancLabel + ' (' + palier.tranche + ')'
+    + '\n\nPréavis conventionnel : ' + palier.label + ' → fin théorique le ' + formatDateShort(finPreavBase);
+  if (prolongation > 0) {
+    detail += '\nProlongation (CP validés / AT / maladie professionnelle) : + ' + prolongation + ' jour' + (prolongation > 1 ? 's' : '');
+    detail += '\n\nFin de préavis (prolongation incluse) : ' + formatDate(finPreav);
+  } else {
+    detail += '\n\nFin de préavis : ' + formatDate(finPreav);
+  }
+
+  document.getElementById('pr-res-detail').textContent = detail;
+
+  box.style.display = 'block';
+  msg.style.display = 'none';
 }
 
 </script>
